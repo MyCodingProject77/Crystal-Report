@@ -1,0 +1,64 @@
+
+
+  using CrystalDecisions.CrystalReports.Engine;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using CrystalDecisions.CrystalReports.Engine;
+using CrystalDecisions.Shared;
+
+namespace HotelManagement
+{
+    public partial class ReportView : Form
+    {
+        string connectionString = "Server=DESKTOP-DASLLN7;Database=HotelDB;TrustServerCertificate=True;Integrated Security=True;";
+        public ReportView()
+        {
+            InitializeComponent();
+        }
+
+        private void ReportView_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                // Load Data from SQL Server
+                DataTable dt = GetBookingsData();
+
+                // Load Crystal Report
+                ReportDocument rpt = new ReportDocument();
+                rpt.Load(@"C:\Users\TechPro\source\repos\HotelManagement\HotelManagement\Report1.rpt"); // Set correct report path
+
+                // Set DataSource
+                rpt.SetDataSource(dt);
+
+                // Assign to CrystalReportViewer
+                crystalReportViewer1.ReportSource = rpt;
+                crystalReportViewer1.Refresh();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+        }
+
+        private DataTable GetBookingsData()
+        {
+            DataTable dt = new DataTable();
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                string query = "SELECT * FROM bookings";
+                SqlDataAdapter da = new SqlDataAdapter(query, con);
+                con.Open();
+                da.Fill(dt);
+            }
+            return dt;
+        }
+    }
+}
